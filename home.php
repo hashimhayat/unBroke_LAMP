@@ -93,7 +93,7 @@
 	</ul>
 
 	<header>
-		Unbroke - Home
+		UnBroke - Home
 	</header>
 		<body>
 			<p>Welcome "<font color="green"> <?php echo $name; ?></font> " to unBroke.</p>

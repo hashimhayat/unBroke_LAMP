@@ -111,7 +111,7 @@
 	</ul>
 
 	<header>
-		unBroke - Review Jobs
+		UnBroke - Review Jobs
 	</header>
 
 		<body>
@@ -140,7 +140,7 @@
 							<a href="delete_app.php?app_id=<?php echo $row['app_id'];?>"> 
 								<img style="width:15px;height:15px;" class='delete' src='images/delete.png' /> 
 							</a>
-							
+
 							<br><br>
 						<?php endwhile; ?>
 					</code> </div>

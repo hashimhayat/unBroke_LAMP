@@ -23,6 +23,12 @@
 		$name = $row['fullname'];
 	}
 
+	function check_status($status){
+		if ($status == 0) { return "<font color=\"Blue\">" . 'Considering.' . "</font>"; }
+		elseif ($status == 1) {return "<font color=\"Green\">" . 'Accepted.' . "</font>";}
+		elseif ($status == -1) {return "<font color=\"Red\">" . 'Rejected.' . "</font>";}
+	}
+
 	function get_user_info($user_id, $cxn) {
 		$user = "SELECT * FROM `user_details` WHERE user_id='{$user_id}'";
 
@@ -34,6 +40,17 @@
   		return "not found";
 	}
 
+	function get_job_info_from_id($job_id, $cxn) {
+		$q3 = "SELECT * FROM `jobs` WHERE job_id='{$job_id}'";
+
+		$r = $cxn->query($q3);
+		if ($r->num_rows > 0){
+			$val = $r->fetch_assoc();
+			return $val;
+		}
+  		return "not found";
+	}
+
 	$clicked_user = -1;
 
 	// All Active users
@@ -41,13 +58,13 @@
 	$get_all_users = $cxn->query($all_users);
 
 	// All Accepted/Rejected Jobs
-	$all_accepted = "SELECT * FROM jobs, job_applications WHERE jobs.job_id=job_applications.job_id GROUP BY job_applications.accept ORDER BY job_applications.app_id ASC LIMIT 0,20";
+	$all_accepted = "SELECT * FROM jobs, job_applications WHERE jobs.job_id=job_applications.job_id ORDER BY job_applications.accept DESC LIMIT 0,20";
+	$get_jobs = $cxn->query($all_accepted);
 
 	$category_selected = "Arts";
 
-	// Jobs Available in a particular category
-	$jobs_in_category = "SELECT * FROM jobs, job_offerings WHERE jobs.job_id=job_offerings.job_id AND jobs.category='{$category_selected}' ORDER BY job_offerings.offer_time DESC";
-
+	$q2 = "SELECT category FROM `jobs` WHERE 1 GROUP BY category";
+	$category = $cxn->query($q2);
 ?>
 
 
@@ -68,7 +85,7 @@
 	</ul>
 
 	<header>
-		unBroke - Reports
+		UnBroke - Reports
 	</header>
 
 		<body>
@@ -85,53 +102,56 @@
 							
 							<hr> 
 							<strong>Name:</strong>
-							<a href="reports.php?user_id=<?php echo $row["user_id"];?>"> 
+							<a href="reports.php?domain=active_users&amp;user_id=<?php echo $row["user_id"];?>"> 
 								 <?php echo $row['fullname']; ?>
 							</a>
 
 							<?php
-								if (isset($_GET['user_id'])){
-									$clicked_user = $_GET['user_id'];
-									$result = get_user_info($clicked_user, $cxn);
-									if ($clicked_user == $row["user_id"]){
-										echo "<br><strong>City: </strong>" . $result['city'];  
-										echo "<br><strong>Occupation: </strong>" . $result['occupation'];  
-									} 
+								if (isset($_GET['domain'])){
+									if ($_GET['domain']=="active_users"){
+										$clicked_user = $_GET['user_id'];
+										$result = get_user_info($clicked_user, $cxn);
+										if ($clicked_user == $row["user_id"]){
+											echo "<br><strong>City: </strong>" . $result['city'];  
+											echo "<br><strong>Occupation: </strong>" . $result['occupation'];  
+										} 
+									}
 								}
 							?>
-							<br><a href="send_message.php?user_id=<?php echo $row["user_id"];?>"> Send Message </a><hr>
-							<br>
-						<?php endwhile; ?>
+							<br><a href="send_message.php?domain=active_users&amp;user_id=<?php echo $row["user_id"];?>"> Send Message </a>
+						<?php endwhile; ?><hr>
 					</code> </div>
 				</div>
 			<!--  -->
 
 			<!--  -->
 				<div class = "job_status"> 
-					<pre><strong><code>Report 2: Jobs by Status</code></strong></pre>
+					<pre><strong><code>Report 2: Posted Jobs by Status</code></strong></pre>
 					
 					<div style="padding-left: 30px;"> <code>
-						<?php while ($row = $get_all_users->fetch_assoc()): ?>
+						<?php while ($row = $get_jobs->fetch_assoc()): ?>
 							
 							<hr> 
-							<strong>Name:</strong>
-							<a href="reports.php?user_id=<?php echo $row["user_id"];?>"> 
-								 <?php echo $row['fullname']; ?>
+							<strong>Title:</strong>
+							<a href="reports.php?domain=job_status&amp;app_id=<?php echo $row["app_id"];?>"> 
+								 <?php echo $row['title']; ?>
 							</a>
 
 							<?php
-								if (isset($_GET['user_id'])){
-									$clicked_user = $_GET['user_id'];
-									$result = get_user_info($clicked_user, $cxn);
-									if ($clicked_user == $row["user_id"]){
-										echo "<br><strong>City: </strong>" . $result['city'];  
-										echo "<br><strong>Occupation: </strong>" . $result['occupation'];  
-									} 
+								if (isset($_GET['domain'])){
+									if ($_GET['domain']=="job_status"){
+										$app_id = $_GET['app_id'];
+										if ($app_id == $row["app_id"]){
+											echo "<br><strong>Category: </strong>" . $row['category'];  
+											echo "<br><strong>Status: </strong>" . check_status($row['accept']);  
+										} 
+									}
 								}
 							?>
-							<br><a href="send_message.php?user_id=<?php echo $row["user_id"];?>"> Send Message </a><hr>
+
+							<!-- <br><a href="send_message.php?user_id=<?php echo $row["user_id"];?>"> Send Message </a><hr> -->
 							<br>
-						<?php endwhile; ?>
+						<?php endwhile; ?><hr>
 					</code> </div>
 				</div>
 			<!--  -->
@@ -140,28 +160,32 @@
 				<div class = "jobs_by_category"> 
 					<pre><strong><code>Report 3: Jobs by Category</code></strong></pre>
 					
-					<div style="padding-left: 30px;"> <code>
-						<?php while ($row = $get_all_users->fetch_assoc()): ?>
-							
-							<hr> 
-							<strong>Name:</strong>
-							<a href="reports.php?user_id=<?php echo $row["user_id"];?>"> 
-								 <?php echo $row['fullname']; ?>
-							</a>
+					<hr>
+					<form action="#" method="post">
+						<select name="cats">
+							<?php while ($row = $category->fetch_assoc()): ?>
+					  			<?php echo "<option value='" . $row['category'] . "' selected>" . $row['category'] . "</option>"; ?>
+					  		<?php endwhile; ?>
+						</select>
+						<input type="submit" name="select_category" value="Select" /> <code> press me after selecting an option.</code>
+					</form>
+					<code>
+						<?php
+							if (isset($_POST['cats'])){
+								$category_selected = $_POST['cats'];
+								$jobs_in_category = "SELECT * FROM jobs, job_offerings 
+													WHERE jobs.job_id=job_offerings.job_id 
+													AND jobs.category='{$category_selected}' 
+													ORDER BY job_offerings.offer_time DESC";
+								$jobs_category = $cxn->query($jobs_in_category);
 
-							<?php
-								if (isset($_GET['user_id'])){
-									$clicked_user = $_GET['user_id'];
-									$result = get_user_info($clicked_user, $cxn);
-									if ($clicked_user == $row["user_id"]){
-										echo "<br><strong>City: </strong>" . $result['city'];  
-										echo "<br><strong>Occupation: </strong>" . $result['occupation'];  
-									} 
-								}
-							?>
-							<br><a href="send_message.php?user_id=<?php echo $row["user_id"];?>"> Send Message </a><hr>
-							<br>
-						<?php endwhile; ?>
+							while ($row = $jobs_category->fetch_assoc()):
+								echo "<br><strong>Job Title: </strong>" . $row['title'] . "<br>";
+		
+							endwhile; 
+							}
+						?>
+
 					</code> </div>
 				</div>
 			<!--  -->
