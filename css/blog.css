@@ -1,0 +1,90 @@
+html, body, .container, .home
+{   
+    width: 960px;
+    height: 480px; 
+    margin-left: auto;
+    margin-right: auto;
+}
+
+div.clear {
+    clear: both;
+}
+
+header {
+
+    padding-top: 10px;
+    color: #F90B6D; 
+    font-family: 'Open Sans', sans-serif; font-size: 40px; font-weight: 300; line-height: 40px; margin: 0 0 16px; 
+}
+
+h2 {
+    font-family: Century Gothic;
+    font-weight: normal;
+    font-size: 20px;
+    color: black;
+    text-align: left;
+    vertical-align: middle;
+}
+
+p {
+    font-family: Century Gothic;
+    font-weight: normal;
+    text-align: justify; 
+    color: black;
+}
+
+a:link, a:visited {
+    text-decoration: none;
+    color: rgb(24,65,127);
+}
+
+a:hover, a:active {
+    color: rgb(111,180,46);
+}
+
+input:focus {
+    border: 3px solid #555;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #e7e7e7;
+    background-color: #f3f3f3;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: #666;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-family: Century Gothic;
+}
+
+li a:hover:not(.active) {
+    background-color: #ddd;
+}
+
+li a.active {
+    color: white;
+    background-color: #4CAF50;
+}
+
+.footer {
+  position: bottom;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
+  background-color: #efefef;
+  text-align: center;
+}
+
+
